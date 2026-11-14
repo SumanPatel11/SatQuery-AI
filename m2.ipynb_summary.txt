@@ -1,0 +1,137 @@
+NOTEBOOK: m2.ipynb
+TOTAL CELLS: 28
+
+[code CELL 0]
+from pathlib import Path
+import pandas as pd
+import json
+
+[code CELL 1]
+from pathlib import Path
+import pandas as pd
+import json
+
+[code CELL 2]
+from pathlib import Path
+import pandas as pd
+PROJECT_ROOT = Path(r"C:\Users\ASUS\SatQuery-AI")
+
+[code CELL 3]
+from pathlib import Path
+import pandas as pd
+import json
+
+[code CELL 4]
+from pathlib import Path
+import pandas as pd
+PROJECT_ROOT = Path(r"C:\Users\ASUS\SatQuery-AI")
+
+[code CELL 5]
+from pathlib import Path
+import pandas as pd
+import numpy as np
+
+[code CELL 6]
+from pathlib import Path
+import pandas as pd
+PROJECT_ROOT = Path(r"C:\Users\ASUS\SatQuery-AI")
+
+[code CELL 7]
+from pathlib import Path
+import pandas as pd
+import json
+
+[code CELL 8]
+from pathlib import Path
+import json
+# ============================================================
+
+[code CELL 9]
+from pathlib import Path
+import pandas as pd
+from collections import Counter
+
+[code CELL 10]
+# ============================================================
+# BREAK — COMPACT DECOMPOSITION SUMMARY
+# ============================================================
+
+[code CELL 11]
+from collections import Counter
+import ast
+# ============================================================
+
+[code CELL 12]
+# ============================================================
+# BREAK — FINAL CANDIDATE EXAMPLES
+# ============================================================
+
+[code CELL 13]
+from pathlib import Path
+import json
+# ============================================================
+
+[code CELL 14]
+# ============================================================
+# M2 — SATQUERY-SPECIFIC DATASET GENERATION
+# ============================================================
+
+[code CELL 15]
+# ============================================================
+# M2 — SATQUERY DATASET QUALITY + LEAKAGE AUDIT
+# ============================================================
+
+[code CELL 16]
+# ============================================================
+# M2 — CONTROLLED SATQUERY DATASET EXPANSION
+# ============================================================
+
+[code CELL 17]
+# ============================================================
+# M2 — EXPANDED SATQUERY DATASET AUDIT
+# ============================================================
+
+[code CELL 18]
+# ============================================================
+# M2 — GROUP-AWARE TRAIN / VAL / TEST SPLIT
+# ============================================================
+
+[code CELL 19]
+# ============================================================
+# M2 — FINAL SATQUERY DATASET LOCK AUDIT
+# ============================================================
+
+[code CELL 20]
+# ============================================================
+# M2 — FINAL SATQUERY DATASET LOCK AUDIT
+# ============================================================
+
+[code CELL 21]
+# ============================================================
+# M2 — MERGE LANGCACHE + SATQUERY DATASETS
+# ============================================================
+
+[code CELL 22]
+# ============================================================
+# LOCATE M2 PROJECT DATA
+# ============================================================
+
+[code CELL 23]
+# ============================================================
+# CHECK WHETHER LOCKED SATQUERY DATA STILL EXISTS IN MEMORY
+# ============================================================
+
+[code CELL 24]
+# ============================================================
+# SAVE LOCKED SATQUERY SPLIT FROM CURRENT KERNEL MEMORY
+# ============================================================
+
+[code CELL 25]
+# ============================================================
+# M2 — MERGE LANGCACHE + LOCKED SATQUERY
+# ============================================================
+
+[code CELL 26]
+# ============================================================
+# M2 — FINAL MERGED DATASET AUDIT
+# ============================================================

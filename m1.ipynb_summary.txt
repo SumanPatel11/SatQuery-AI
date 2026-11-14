@@ -1,0 +1,237 @@
+NOTEBOOK: m1.ipynb
+TOTAL CELLS: 49
+
+[code CELL 0]
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+import sys
+
+[code CELL 1]
+from pathlib import Path
+import json
+# SatQuery-AI project root
+
+[code CELL 2]
+# Check basic structure of each dataset
+print("=" * 60)
+print("D1 CLEAN")
+
+[code CELL 3]
+print("=" * 60)
+print("CHANGECHAT TRAIN")
+print("=" * 60)
+
+[code CELL 4]
+from collections import Counter
+M1_HEADS = [
+"intent",
+
+[code CELL 5]
+# Combine all current M1 data
+all_changechat = changechat_train + changechat_val + changechat_test
+combined_data = d1_data + all_changechat
+
+[code CELL 6]
+from pathlib import Path
+import json
+import random
+
+[code CELL 7]
+# ============================================================
+# FINAL M1 VALIDATION
+# ============================================================
+
+[code CELL 8]
+# ============================================================
+# CHECK REAL DATA FOR MISSING M1 INTENTS
+# ============================================================
+
+[code CELL 9]
+# ============================================================
+# REAL FLOOD DATASET CHECK — Sen1Floods11
+# ============================================================
+
+[code CELL 10]
+# ============================================================
+# INSPECT SEN1FLOODS11 ARCHIVE
+# ============================================================
+
+[code CELL 11]
+# ============================================================
+# EXTRACT REAL SEN1FLOODS11 SPLITS + METADATA
+# ============================================================
+
+[code CELL 12]
+# ============================================================
+# SEN1FLOODS11 -> M1 FLOOD DETECTION DATASET
+# ============================================================
+
+[code CELL 13]
+# ============================================================
+# M1 — MODEL ENVIRONMENT SETUP
+# ============================================================
+
+[code CELL 14]
+# ============================================================
+# M1 — DATASET + LABEL ENCODERS + DISTILBERT MODEL
+# ============================================================
+
+[code CELL 15]
+# ============================================================
+# M1 — TOKENIZATION + DATASET + DATALOADER
+# ============================================================
+
+[code CELL 17]
+# ============================================================
+# M1 — MULTI-TASK FINE-TUNING
+# ============================================================
+
+[code CELL 18]
+from pathlib import Path
+# Reconnect to project
+PROJECT_ROOT = Path(r"C:\Users\ASUS\SatQuery-AI")
+
+[code CELL 19]
+# ============================================================
+# M1 — RECOVERY + TRAINING + CHECKPOINT SAVING
+# ============================================================
+
+[code CELL 20]
+# ============================================================
+# M1 — LOAD BEST MODEL + FINAL TEST EVALUATION
+# ============================================================
+
+[code CELL 21]
+# ============================================================
+# M1 — FINAL EXPORT + INFERENCE TEST (RECOVERY SAFE)
+# ============================================================
+
+[code CELL 22]
+# ============================================================
+# SYNTHETIC DATA — FLOOD_DETECTION + OUT_OF_SCOPE
+# ============================================================
+
+[code CELL 23]
+# ============================================================
+# M1 — ADD FLOOD + OUT-OF-SCOPE TO EXISTING MODEL
+# ============================================================
+
+[code CELL 24]
+# ============================================================
+# M1 — FINAL 6-INTENT INFERENCE TEST
+# ============================================================
+
+[code CELL 25]
+# ============================================================
+# FIX — NORMALIZE REAL + SYNTHETIC QUERY FIELD
+# ============================================================
+
+[code CELL 26]
+# ============================================================
+# M1 — 6-INTENT REHEARSAL FINE-TUNING
+# ============================================================
+
+[code CELL 27]
+# ============================================================
+# M1 — FINAL 6-INTENT REHEARSAL FINE-TUNING
+# ============================================================
+
+[code CELL 28]
+# ============================================================
+# M1 — FAST 6-INTENT REHEARSAL
+# 640 SAMPLES / 1 EPOCH
+
+[code CELL 29]
+# ============================================================
+# M1 — FINAL 6-INTENT INFERENCE VALIDATION
+# NO TRAINING
+
+[code CELL 30]
+import sys
+import torch
+print("Python:", sys.executable)
+
+[code CELL 31]
+import sys
+import torch
+import transformers
+
+[code CELL 32]
+import sys
+print(sys.executable)
+print(sys.version)
+
+[code CELL 33]
+import torch
+print("Torch imported")
+print(torch.__version__)
+
+[code CELL 34]
+import torch
+print("Torch imported successfully")
+print("Version:", torch.__version__)
+
+[code CELL 35]
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+import torch
+
+[code CELL 36]
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+import json
+
+[code CELL 37]
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+import torch
+
+[code CELL 38]
+# ============================================
+# M1 — 6-Intent Lightweight Sanity Test
+# ============================================
+
+[code CELL 39]
+for i, query in enumerate(queries, 1):
+inputs = tokenizer(
+query,
+
+[code CELL 40]
+import os
+import json
+import random
+
+[code CELL 41]
+import json
+import random
+from pathlib import Path
+
+[code CELL 42]
+import json
+import random
+from pathlib import Path
+
+[code CELL 43]
+import json
+import random
+from pathlib import Path
+
+[code CELL 44]
+import json
+from pathlib import Path
+PROJECT_ROOT = Path(r"C:\Users\ASUS\SatQuery-AI")
+
+[code CELL 45]
+# ============================================================
+# M1 — CONTROLLED 6-INTENT TRAINING
+# 1 EPOCH ONLY
+
+[code CELL 46]
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+import json
+
+[code CELL 47]
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+import json
