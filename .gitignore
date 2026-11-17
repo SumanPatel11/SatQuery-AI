@@ -1,78 +1,54 @@
-﻿# Python environments
+# Python environments
 .venv/
 .venv-*/
 venv/
 env/
 
-# Python cache
+# Python caches and test artifacts
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .mypy_cache/
+.ipynb_checkpoints/
 
 # Environment variables and secrets
 .env
 .env.*
 !.env.example
 
-# Datasets and trained models
-data/
-models/
+# Local datasets and model artifacts
+/data/
+/models/
 *.pt
 *.pth
 *.ckpt
 *.onnx
 
-# Generated CV outputs and uploaded files
+# Generated model runs, CV outputs, and uploaded files
+/runs/
 cv/outputs/
-backend/storage/uploads/
+nlp/outputs/
 backend/storage/
-*.tif
-*.tiff
 
-# Frontend dependencies and builds
-frontend/node_modules/
-frontend/dist/
+# Frontend dependencies and production output
+/node_modules/
+/frontend/node_modules/
+/frontend/dist/
 
-# Logs and temporary files
+# Logs, temporary files, and local backups
 *.log
 logs/
 tmp/
 temp/
+*.tmp
+*.temp
+*.bak
+/backups/
+*.backup
 
-# IDE and OS files
+# IDE and operating-system files
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
-
-# Root dependencies
-/node_modules/
-
-# ZIP archives
-*.zip
-
-# Windows system files
 desktop.ini
-Thumbs.db
-
-
-# Historical project snapshots
-/backups/
-
-# Model weights and generated outputs
-/cv/models/
-/cv/outputs/
-/nlp/outputs/
-/backend/storage/
-/data/
-/models/
-
-# Python generated files
-__pycache__/
-.ipynb_checkpoints/
-*.backup
-
-# Frontend production build
-/frontend/dist/
-
