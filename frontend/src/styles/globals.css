@@ -2263,11 +2263,11 @@ input:focus-visible {
 
 .overlay-box {
   position: absolute;
-  border: 1.5px solid rgba(91, 214, 255, 0.95);
-  background: rgba(91, 214, 255, 0.06);
+  border: 2px solid rgba(91, 214, 255, 1);
+  background: rgba(91, 214, 255, 0.1);
   box-shadow:
-    0 0 0 1px rgba(4, 12, 18, 0.35),
-    0 0 12px rgba(91, 214, 255, 0.12);
+    0 0 0 1px rgba(4, 12, 18, 0.72),
+    0 0 14px rgba(91, 214, 255, 0.28);
 }
 
 .overlay-box-label {
@@ -2275,11 +2275,11 @@ input:focus-visible {
   top: -1px;
   left: -1px;
   transform: translateY(-100%);
-  padding: 3px 5px;
-  background: rgba(7, 13, 18, 0.9);
-  border: 1px solid rgba(91, 214, 255, 0.4);
-  color: #bcecff;
-  font-size: 8px;
+  padding: 4px 6px;
+  background: rgba(7, 13, 18, 0.96);
+  border: 1px solid rgba(91, 214, 255, 0.72);
+  color: #d9f5ff;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
@@ -3838,4 +3838,104 @@ input:focus-visible {
   flex-shrink: 0;
   border-radius: 50%;
   background: #67d8aa;
+}
+
+/* Functional data pages and truthful empty/loading states */
+.record-list { display: grid; gap: 9px; }
+.record-card { display: flex; align-items: center; gap: 13px; padding: 14px; border: 1px solid #202c35; border-radius: 8px; background: #101820; color: #91a0aa; }
+.record-card-stacked { display: block; }
+.record-card-row { display: flex; align-items: center; gap: 13px; }
+.record-card-main { min-width: 0; flex: 1; }
+.record-card-main h2 { margin: 0 0 5px; color: #d0dbe1; font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
+.record-card-main p, .record-card-main span, .record-card-main code { display: block; margin: 3px 0 0; color: #71818c; font-size: 9px; overflow-wrap: anywhere; }
+.record-action { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 11px; border: 1px solid #30404b; border-radius: 6px; background: #17232b; color: #c5d2d9; font: inherit; font-size: 10px; cursor: pointer; }
+.record-action:hover:not(:disabled) { border-color: #4d7769; background: #1b2a30; }
+.record-action:disabled { opacity: .55; cursor: not-allowed; }
+.record-search { display: flex; align-items: center; gap: 9px; min-width: min(100%, 340px); margin-bottom: 12px; padding: 8px 10px; border: 1px solid #27343e; border-radius: 6px; background: #101820; color: #7d8d97; }
+.record-search input { width: 100%; border: 0; outline: 0; background: transparent; color: #d2dbe0; font: inherit; font-size: 10px; }
+.page-data-note, .page-feedback { margin: 13px 0 0; color: #71818c; font-size: 10px; line-height: 1.6; }
+.page-error { color: #e59a9a; font-size: 10px; line-height: 1.5; }
+.page-empty-state { display: grid; justify-items: center; gap: 8px; padding: 32px 18px; border: 1px dashed #2a3842; border-radius: 8px; background: #101820; color: #7d8d97; text-align: center; }
+.page-empty-state h2 { margin: 3px 0 0; color: #c9d4da; font-size: 14px; }
+.page-empty-state p { max-width: 540px; margin: 0 0 5px; font-size: 10px; line-height: 1.6; }
+.status-chip { display: inline-flex; padding: 4px 7px; border: 1px solid #2c3942; border-radius: 20px; color: #aab7bf; font-size: 9px; text-transform: capitalize; }
+.status-success { border-color: #315a4b; color: #79d4ad; }
+.status-blocked { border-color: #695c3a; color: #d8bd75; }
+.status-failed { border-color: #633e43; color: #dd9298; }
+.record-details { margin: 13px 0 0 31px; padding-top: 12px; border-top: 1px solid #26333d; }
+.history-filter { min-height: 34px; padding: 0 10px; border: 1px solid #2a3741; border-radius: 6px; background: #111a21; color: #aebbc3; font: inherit; font-size: 10px; }
+.settings-actions { padding: 12px 15px; }
+.settings-system-card .record-action { margin-top: 10px; }
+.help-list { display: grid; gap: 10px; padding-left: 18px; color: #aab7c0; font-size: 11px; line-height: 1.6; }
+.analysis-summary { display: grid; gap: 10px; color: #c2cdd3; font-size: 11px; line-height: 1.55; }
+.analysis-summary p { margin: 0; }
+.analysis-summary-answer { color: #e0e8ed; font-size: 12px; line-height: 1.65; }
+.analysis-summary-query { color: #81929d; }
+.analysis-summary-result { padding-top: 9px; border-top: 1px solid #26343e; }
+.analysis-summary-result h4 { margin: 0 0 4px; color: #d4dfe4; font-size: 11px; text-transform: capitalize; }
+.analysis-summary-meta { margin-bottom: 6px !important; color: #8a9ba5; font-size: 9px; }
+.analysis-summary ul { display: grid; gap: 3px; margin: 5px 0 8px; padding-left: 17px; color: #aebbc3; font-size: 10px; overflow-wrap: anywhere; }
+.analysis-summary-details { margin-top: 7px; color: #9aabb5; font-size: 10px; }
+.analysis-summary-details summary { cursor: pointer; }
+.analysis-summary-details pre { max-height: 300px; overflow: auto; padding: 9px; border-radius: 5px; background: #0b1116; color: #82939d; font-size: 9px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.nlp-insights-body { display: grid; gap: 9px; margin-top: 10px; }
+.nlp-insights-body section { padding-top: 8px; border-top: 1px solid #26343e; }
+.nlp-insights-body h5 { margin: 0 0 5px; color: #d1dce2; font-size: 10px; }
+.nlp-insights-body p { margin: 3px 0; color: #9cabb4; font-size: 9px; overflow-wrap: anywhere; }
+.nlp-insights-body ul { display: grid; gap: 3px; margin: 5px 0; padding-left: 17px; color: #9cabb4; font-size: 9px; overflow-wrap: anywhere; }
+.nlp-insights-body code { color: #9bbdaf; white-space: pre-wrap; }
+.analysis-summary-error { color: #e59a9a; }
+.analysis-change-preview { display: grid; gap: 5px; margin: 8px 0 0; }
+.analysis-change-preview img { display: block; width: 100%; max-height: 260px; object-fit: contain; border: 1px solid #2b414d; border-radius: 5px; background: #080d13; }
+.analysis-change-preview figcaption { color: #8496a0; font-size: 9px; }
+
+/* Guarded comparison upload owned by Workspace. */
+.after-image-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(160px, 240px);
+  align-items: center;
+  gap: 16px;
+  margin: 14px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.after-image-copy { min-width: 0; }
+.after-image-kicker { color: var(--text-muted); font-size: 9px; letter-spacing: .1em; }
+.after-image-copy h2 { margin: 5px 0; color: var(--text-primary); font-size: 13px; }
+.after-image-copy p { margin: 3px 0; color: var(--text-secondary); font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.after-image-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.after-image-file-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+.after-image-select, .after-image-clear { min-height: 34px; padding: 0 11px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-raised); color: var(--text-primary); font: inherit; font-size: 10px; cursor: pointer; }
+.after-image-select:hover:not(:disabled), .after-image-clear:hover:not(:disabled) { border-color: var(--accent-border); background: var(--surface-hover); }
+.after-image-select:disabled, .after-image-clear:disabled { opacity: .55; cursor: not-allowed; }
+.after-image-status { flex-basis: 100%; color: var(--text-muted); font-size: 9px; text-align: right; }
+.after-image-status-ready { color: var(--accent); }
+.after-image-error { flex-basis: 100%; color: var(--danger); font-size: 10px; text-align: right; }
+.after-image-preview { display: grid; gap: 5px; min-width: 0; margin: 0; }
+.after-image-preview img { display: block; width: 100%; max-height: 116px; object-fit: contain; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #080d13; }
+.after-image-preview figcaption { overflow: hidden; color: var(--text-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Workspace owns the guarded before/after upload flow. Hide the viewer's
+   legacy duplicate after-image controls so users cannot bypass its upload guard. */
+.viewer-header-actions > .viewer-upload-button[title="Upload after image for change detection"],
+.viewer-header-actions > .viewer-upload-button[title="Upload after image for change detection"] + .viewer-clear-button {
+  display: none !important;
+}
+.analysis-console-note { margin: 12px 0; color: #758691; font-size: 9px; line-height: 1.5; }
+.topbar-icon:disabled { opacity: .42; cursor: not-allowed; }
+.shortcut { border: 1px solid var(--border); background: transparent; font: inherit; cursor: pointer; }
+.shortcut:hover { color: #cbd5dc; border-color: var(--border-strong); }
+.layer-item:disabled { opacity: .45; cursor: not-allowed; }
+.layer-item:disabled:hover { background: transparent; }
+
+@media (max-width: 650px) {
+  .record-card, .record-card-row { align-items: flex-start; flex-wrap: wrap; }
+  .record-card-main { flex-basis: calc(100% - 42px); }
+  .record-details { margin-left: 0; }
+  .after-image-control { grid-template-columns: 1fr; align-items: stretch; }
+  .after-image-actions { justify-content: flex-start; }
+  .after-image-status, .after-image-error { text-align: left; }
+  .after-image-preview img { max-height: 180px; }
 }

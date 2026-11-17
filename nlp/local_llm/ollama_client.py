@@ -19,8 +19,12 @@ class OllamaClient:
         payload = {
             "model": model,
             "stream": False,
+            "think": False,
             "messages": messages,
-            "options": {"temperature": temperature},
+            "options": {
+                "temperature": temperature,
+                "num_predict": 256,
+            },
         }
 
         if format_schema is not None:

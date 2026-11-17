@@ -3,6 +3,7 @@ import api from "./api";
 export async function sendChatQuery({
   query,
   imageId = null,
+  secondImageId = null,
   sessionId = null,
   context = {},
 }) {
@@ -13,6 +14,7 @@ export async function sendChatQuery({
   return api.sendQuery({
     query: query.trim(),
     imageId,
+    secondImageId,
     sessionId,
     context,
   });

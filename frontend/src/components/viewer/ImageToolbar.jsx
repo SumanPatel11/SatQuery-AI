@@ -9,7 +9,6 @@ import {
 
 function ImageToolbar({
   image,
-  zoom,
   onZoomIn,
   onZoomOut,
   onReset,
@@ -19,9 +18,10 @@ function ImageToolbar({
     <div className="viewer-toolbar">
       <button
         type="button"
-        className="viewer-tool active"
+        className="viewer-tool"
+        disabled
         aria-label="Select"
-        title="Select"
+        title="Selection mode is not available; use drag to pan the image."
       >
         <MousePointer2
           size={15}
@@ -78,8 +78,9 @@ function ImageToolbar({
       <button
         type="button"
         className="viewer-tool"
+        disabled
         aria-label="Map"
-        title="Map"
+        title="Map layers are not configured for this local demo."
       >
         <Map
           size={15}

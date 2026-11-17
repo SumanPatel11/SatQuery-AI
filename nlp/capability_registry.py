@@ -1,6 +1,9 @@
-﻿
+
 from pathlib import Path
+import logging
 from typing import Any, Callable, Dict, List
+
+logger = logging.getLogger(__name__)
 
 
 class CapabilityRegistry:
@@ -25,6 +28,7 @@ class CapabilityRegistry:
         "WATER_LOCATE",
         "VEGETATION_AREA",
         "LAND_COVER_AREA",
+        "LAND_COVER_AREA_UNSUPPORTED",
         "LAND_COVER_DETECTION",
         "BUILDING_CHANGE",
         "FLOODED_AREA_PRESENCE",
@@ -45,6 +49,10 @@ class CapabilityRegistry:
             }
             for name in self.KNOWN_CAPABILITIES
         }
+        self._capabilities["LAND_COVER_AREA_UNSUPPORTED"]["reason"] = (
+            "Geographic or physical land-cover area is not supported. "
+            "LoveDA can report image pixel counts and pixel percentages."
+        )
 
     @staticmethod
     def _verify_file(path: str) -> bool:
@@ -186,6 +194,7 @@ class CapabilityRegistry:
         tasks: List[Dict[str, Any]],
         image_path: str,
         output_dir: str,
+        second_image_path: str = None,
     ) -> Dict[str, Any]:
         """
         Execute verified CV capabilities against an uploaded image.
@@ -209,6 +218,26 @@ class CapabilityRegistry:
             raise FileNotFoundError(
                 f"Input image not found: {image_file}"
             )
+
+        second_image_file = None
+        if second_image_path is not None:
+            second_image_file = Path(second_image_path)
+            if not second_image_file.is_file():
+                raise FileNotFoundError(
+                    f"Second input image not found: {second_image_file}"
+                )
+
+        if any(task.get("task") == "BUILDING_CHANGE" for task in tasks):
+            if second_image_file is None:
+                return {
+                    "execution_started": False,
+                    "execution_status": "BLOCKED",
+                    "validation": {
+                        "overall_status": "BLOCKED",
+                        "reason": "Building change analysis requires a before image and an after image.",
+                    },
+                    "results": [],
+                }
 
         # Validate every task before starting any inference.
         validation = self.validate_tasks(tasks)
@@ -247,11 +276,15 @@ class CapabilityRegistry:
 
             # Execute the genuine registered CV inference function.
             try:
-                result = executor(
-                    image_path=str(image_file),
-                    output_dir=str(task_output_dir),
-                    save_outputs=True,
-                )
+                executor_kwargs = {
+                    "image_path": str(image_file),
+                    "output_dir": str(task_output_dir),
+                    "save_outputs": True,
+                }
+                if task_name == "BUILDING_CHANGE":
+                    executor_kwargs["second_image_path"] = str(second_image_file)
+
+                result = executor(**executor_kwargs)
 
                 if not isinstance(result, dict):
                     raise RuntimeError(
@@ -265,10 +298,27 @@ class CapabilityRegistry:
                 })
 
             except Exception as exc:
+                logger.exception("CV executor failed for capability %s", task_name)
+                detail = str(exc)
+                safe_validation_prefixes = (
+                    "Radiance requires exactly 2 SAR bands.",
+                    "Image must be at least ",
+                    "SAR image contains no pixels with both bands finite.",
+                    "V2 change detection requires before and after images.",
+                    "Input image dimensions differ:",
+                    "Expected a 3-channel RGB image.",
+                    "Unsupported building image format.",
+                )
+                safe_error = (
+                    detail
+                    if isinstance(exc, ValueError)
+                    and detail.startswith(safe_validation_prefixes)
+                    else f"{task_name} failed during inference. Check backend logs for details."
+                )
                 results.append({
                     "task": task_name,
                     "execution_status": "FAILED",
-                    "error": str(exc),
+                    "error": safe_error,
                 })
 
                 # Stop after a failure; do not claim overall success.

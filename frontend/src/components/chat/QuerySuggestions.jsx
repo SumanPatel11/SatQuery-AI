@@ -1,15 +1,15 @@
 import {
   Building2,
-  Droplets,
+  Clock3,
   Layers3,
-  MapPinned,
+  Waves,
 } from "lucide-react";
 
 const suggestions = [
   {
     id: "land-cover",
-    label: "Analyze land cover",
-    query: "Analyze the land cover in this image.",
+    label: "Land-cover pixel counts",
+    query: "Segment the land-cover classes and report pixel counts.",
     icon: Layers3,
   },
   {
@@ -19,16 +19,16 @@ const suggestions = [
     icon: Building2,
   },
   {
-    id: "water",
-    label: "Find water",
-    query: "Identify the water-covered areas in this image.",
-    icon: Droplets,
+    id: "flood",
+    label: "Detect flooding",
+    query: "Detect flooded areas in this image.",
+    icon: Waves,
   },
   {
-    id: "spatial",
-    label: "Analyze a region",
-    query: "What is visible in the center of the image?",
-    icon: MapPinned,
+    id: "change",
+    label: "Compare buildings",
+    query: "Compare buildings before and after for changes.",
+    icon: Clock3,
   },
 ];
 

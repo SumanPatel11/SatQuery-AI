@@ -1,6 +1,19 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env?.VITE_API_BASE_URL ||
   "http://localhost:8000";
+
+
+export function getFloodOverlayUrl(analysisId) {
+  if (!analysisId) return null;
+
+  return `${API_BASE_URL}/api/analysis/${encodeURIComponent(analysisId)}/flood-overlay`;
+}
+
+export function getChangeOverlayUrl(analysisId) {
+  if (!analysisId) return null;
+
+  return `${API_BASE_URL}/api/analysis/${encodeURIComponent(analysisId)}/change-overlay`;
+}
 
 async function parseResponse(response) {
   const contentType = response.headers.get("content-type") || "";
@@ -12,7 +25,7 @@ async function parseResponse(response) {
   return response.text();
 }
 
-async function request(endpoint, options = {}) {
+export async function request(endpoint, options = {}) {
   const response = await fetch(
     `${API_BASE_URL}${endpoint}`,
     {
@@ -32,10 +45,14 @@ async function request(endpoint, options = {}) {
   const data = await parseResponse(response);
 
   if (!response.ok) {
-    const message =
-      typeof data === "object" && data?.message
-        ? data.message
-        : `Request failed with status ${response.status}.`;
+    const detail = typeof data === "object" && data?.detail;
+    const message = typeof detail === "string"
+      ? detail
+      : Array.isArray(detail)
+        ? detail.map((item) => item?.msg || JSON.stringify(item)).join("; ")
+        : typeof data === "object" && data?.message
+          ? data.message
+          : `Request failed with status ${response.status}.`;
 
     throw new Error(message);
   }
@@ -96,4 +113,5 @@ export default {
   sendQuery,
   getAnalysisResult,
   getAnalysisHistory,
+  getFloodOverlayUrl,
 };

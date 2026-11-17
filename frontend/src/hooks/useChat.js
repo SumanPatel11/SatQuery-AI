@@ -1,36 +1,46 @@
-import { useCallback, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useSessionContext } from "../context/SessionContext";
 
-function useChat() {
-  const [messages, setMessages] = useState([]);
+function useChat({ onAnalyze } = {}) {
+  const {
+    sessionId,
+    conversationMessages: messages,
+    appendConversationMessage,
+    resetConversation,
+    addQueryToHistory,
+  } = useSessionContext();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
+  const processingRef = useRef(false);
+  const currentSessionRef = useRef(sessionId);
+  useLayoutEffect(() => {
+    currentSessionRef.current = sessionId;
+  }, [sessionId]);
 
   const addMessage = useCallback((message) => {
     if (!message?.content?.trim()) {
       return;
     }
 
-    setMessages((currentMessages) => [
-      ...currentMessages,
-      {
-        id: message.id ?? `${Date.now()}-${currentMessages.length}`,
-        role: message.role ?? "user",
-        content: message.content.trim(),
-        timestamp:
-          message.timestamp ?? new Date().toISOString(),
-        ...message,
-      },
-    ]);
-  }, []);
+    appendConversationMessage({
+      id: message.id ?? `${Date.now()}-${messages.length}`,
+      role: message.role ?? "user",
+      content: message.content.trim(),
+      timestamp: message.timestamp ?? new Date().toISOString(),
+      ...message,
+    });
+  }, [appendConversationMessage, messages.length]);
 
   const sendMessage = useCallback(
     async (content) => {
-      if (!content?.trim() || isProcessing) {
+      if (!content?.trim() || processingRef.current) {
         return false;
       }
 
       const query = content.trim();
+      const submittedSessionId = sessionId;
 
+      processingRef.current = true;
       setError(null);
       setIsProcessing(true);
 
@@ -38,15 +48,44 @@ function useChat() {
         role: "user",
         content: query,
       });
+      addQueryToHistory(query);
+      try {
+        if (!onAnalyze) {
+          setError("Analysis is unavailable because no analysis handler is connected.");
+          return false;
+        }
 
-      /*
-       * NLP/backend integration will be connected here.
-       * No fabricated AI response is generated.
-       */
+        const response = await onAnalyze(query);
+        if (currentSessionRef.current !== submittedSessionId) {
+          return false;
+        }
+        if (response?.status !== "success") {
+          setError(
+            response?.error ||
+              "Analysis could not be completed. See the Analysis Console for details."
+          );
+          return false;
+        }
 
-      return true;
+        addMessage({
+          role: "assistant",
+          content: response.assistant_response
+            || "The analysis completed, but the backend did not include a conversational response.",
+          analysis: response,
+          timestamp: new Date().toISOString(),
+          status: "completed",
+          analysisId: response.analysis_id,
+        });
+        return response;
+      } catch (requestError) {
+        setError(requestError?.message || "Analysis request failed.");
+        return false;
+      } finally {
+        processingRef.current = false;
+        setIsProcessing(false);
+      }
     },
-    [addMessage, isProcessing]
+    [addMessage, addQueryToHistory, onAnalyze, sessionId]
   );
 
   const addAssistantMessage = useCallback(
@@ -65,19 +104,21 @@ function useChat() {
   );
 
   const setProcessing = useCallback((value) => {
+    processingRef.current = Boolean(value);
     setIsProcessing(Boolean(value));
   }, []);
 
   const setChatError = useCallback((message) => {
     setError(message || null);
+    processingRef.current = false;
     setIsProcessing(false);
   }, []);
 
   const clearChat = useCallback(() => {
-    setMessages([]);
+    resetConversation();
     setError(null);
-    setIsProcessing(false);
-  }, []);
+    if (!processingRef.current) setIsProcessing(false);
+  }, [resetConversation]);
 
   return {
     messages,

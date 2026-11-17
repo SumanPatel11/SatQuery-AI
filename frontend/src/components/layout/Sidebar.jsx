@@ -7,12 +7,13 @@ import {
   Settings,
   Satellite,
 } from "lucide-react";
+import { useSessionContext } from "../../context/SessionContext";
+import useNewScan from "../../hooks/useNewScan";
 
 const navigationItems = [
   {
     label: "New Scan",
     icon: ScanSearch,
-    active: true,
   },
   {
     label: "Images",
@@ -33,6 +34,17 @@ const navigationItems = [
 ];
 
 function Sidebar() {
+  const { currentWorkspace, setCurrentWorkspace } = useSessionContext();
+  const openNewScan = useNewScan();
+
+  const navigate = (label) => {
+    if (label === "New Scan") {
+      openNewScan();
+      return;
+    }
+    setCurrentWorkspace(label);
+  };
+
   return (
     <aside className="sidebar">
       <div className="brand">
@@ -56,7 +68,9 @@ function Sidebar() {
             <button
               key={item.label}
               type="button"
-              className={`nav-item ${item.active ? "active" : ""}`}
+              className={`nav-item ${currentWorkspace === item.label ? "active" : ""}`}
+              onClick={() => navigate(item.label)}
+              aria-current={currentWorkspace === item.label ? "page" : undefined}
             >
               <span className="nav-item-icon">
                 <Icon size={16} strokeWidth={1.75} />
@@ -64,14 +78,19 @@ function Sidebar() {
 
               <span className="nav-item-label">{item.label}</span>
 
-              {item.active && <span className="nav-active-indicator" />}
+              {currentWorkspace === item.label && <span className="nav-active-indicator" />}
             </button>
           );
         })}
       </nav>
 
       <div className="sidebar-bottom">
-        <button type="button" className="nav-item sidebar-settings">
+        <button
+          type="button"
+          className={`nav-item sidebar-settings ${currentWorkspace === "Settings" ? "active" : ""}`}
+          onClick={() => navigate("Settings")}
+          aria-current={currentWorkspace === "Settings" ? "page" : undefined}
+        >
           <span className="nav-item-icon">
             <Settings size={16} strokeWidth={1.75} />
           </span>
@@ -85,8 +104,8 @@ function Sidebar() {
           </div>
 
           <div className="system-status-text">
-            <div className="status-title">System Ready</div>
-            <div className="status-text">Workspace online</div>
+            <div className="status-title">Local workspace</div>
+            <div className="status-text">Backend status is shown above</div>
           </div>
         </div>
 

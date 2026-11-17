@@ -1,6 +1,7 @@
 ﻿import { useCallback, useRef, useState } from "react";
 
 import { useAppContext } from "../context/AppContext";
+import { useSessionContext } from "../context/SessionContext";
 import { ANALYSIS_STATUS } from "../utils/constants";
 import {
   createGeoTiffPreview,
@@ -10,7 +11,9 @@ import {
 import api from "../services/api";
 
 function useImageViewer() {
+  const { resetConversation } = useSessionContext();
   const {
+    selectedImage,
     setSelectedImage,
     setActiveAnalysis,
     setAnalysisStatus,
@@ -18,7 +21,7 @@ function useImageViewer() {
     setError,
   } = useAppContext();
 
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(selectedImage);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -51,6 +54,7 @@ function useImageViewer() {
       });
 
       setSelectedImage(imageData);
+      resetConversation();
       setActiveAnalysis(null);
       setAnalysisStatus(ANALYSIS_STATUS.IDLE);
       clearError();
@@ -120,6 +124,7 @@ function useImageViewer() {
     },
     [
       setSelectedImage,
+      resetConversation,
       setActiveAnalysis,
       setAnalysisStatus,
       clearError,
@@ -138,6 +143,7 @@ function useImageViewer() {
     });
 
     setSelectedImage(null);
+    resetConversation();
     setActiveAnalysis(null);
     setAnalysisStatus(ANALYSIS_STATUS.IDLE);
     clearError();
@@ -148,6 +154,7 @@ function useImageViewer() {
     setIsDragging(false);
   }, [
     setSelectedImage,
+    resetConversation,
     setActiveAnalysis,
     setAnalysisStatus,
     clearError,

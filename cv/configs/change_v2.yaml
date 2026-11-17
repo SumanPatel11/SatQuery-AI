@@ -1,0 +1,12 @@
+dataset_root: data/raw/cv/change/levir_cd
+image_size: 256
+batch_size: 2
+epochs: 6
+learning_rate: 0.0002
+weight_decay: 0.0002
+positive_weight: 4.0
+dice_weight: 0.7
+early_stopping_patience: 3
+cpu_threads: 6
+seed: 42
+checkpoint: models/cv/levir_cd_change_v2/best.pt

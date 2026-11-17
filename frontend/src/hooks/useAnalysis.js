@@ -1,9 +1,14 @@
-import { useCallback } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import { ANALYSIS_STATUS } from "../utils/constants";
 import { useAppContext } from "../context/AppContext";
-import { analyzeImage } from "../services/analysisApi";
+import { sendChatQuery } from "../services/chatApi";
+import { getAnalysisErrorMessage } from "../utils/analysisSummary";
+import { useSessionContext } from "../context/SessionContext";
+
+const BUILDING_CHANGE_QUERY = /\b(change|changed|changes|difference|differences|compare|comparison|before|after|demolish(?:ed|ition)?|new(?:ly)?\s+built|construction|disappear(?:ed|s)?)\b/i;
 
 function useAnalysis() {
+  const { sessionId, createSession } = useSessionContext();
   const {
     analysisStatus,
     setAnalysisStatus,
@@ -11,10 +16,16 @@ function useAnalysis() {
     setActiveAnalysis,
     selectedImage,
     setSelectedImage,
+    selectedSecondImage,
     error,
     setError,
     clearError,
   } = useAppContext();
+  const latestImageRef = useRef(selectedImage);
+  useLayoutEffect(() => {
+    latestImageRef.current = selectedImage;
+  }, [selectedImage]);
+  const requestSequence = useRef(0);
 
   const prepareAnalysis = useCallback(
     (image) => {
@@ -42,27 +53,57 @@ function useAnalysis() {
   const startAnalysis = useCallback(
     async (analysisRequest = {}) => {
       if (!selectedImage) {
-        setError("Upload an image before starting analysis.");
-        return false;
+        const message = "Upload a before image before starting analysis.";
+        setError(message);
+        return analysisRequest.returnFailureDetails
+          ? { status: "blocked", error: message }
+          : false;
       }
 
       if (
         selectedImage.uploadStatus !== "uploaded" ||
         !selectedImage.image_id
       ) {
-        setError("Please wait until image upload is complete.");
-        return false;
+        const message = "Wait for the before image upload to finish before starting analysis.";
+        setError(message);
+        return analysisRequest.returnFailureDetails
+          ? { status: "blocked", error: message }
+          : false;
       }
 
       const query = analysisRequest.query?.trim();
 
       if (!query) {
-        setError("Enter a query before starting analysis.");
-        return false;
+        const message = "Enter a query before starting analysis.";
+        setError(message);
+        return analysisRequest.returnFailureDetails
+          ? { status: "blocked", error: message }
+          : false;
+      }
+
+      const requiresPair = BUILDING_CHANGE_QUERY.test(query);
+      if (requiresPair && selectedSecondImage?.uploadStatus === "uploading") {
+        const message = "Wait for the after image upload to finish before running change analysis.";
+        setError(message);
+        return analysisRequest.returnFailureDetails
+          ? { status: "blocked", error: message }
+          : false;
+      }
+      if (
+        requiresPair &&
+        (selectedSecondImage?.uploadStatus !== "uploaded" || !selectedSecondImage?.image_id)
+      ) {
+        const message = "Building-change analysis requires an uploaded before image and an uploaded after image.";
+        setError(message);
+        return analysisRequest.returnFailureDetails
+          ? { status: "blocked", error: message }
+          : false;
       }
 
       clearError();
       setError(null);
+      const requestId = ++requestSequence.current;
+      const submittedImageId = selectedImage.image_id;
       setAnalysisStatus(ANALYSIS_STATUS.PROCESSING);
 
       setActiveAnalysis({
@@ -72,12 +113,23 @@ function useAnalysis() {
       });
 
       try {
-        const result = await analyzeImage({
-          image: selectedImage.image_id,
+        const result = await sendChatQuery({
+          imageId: selectedImage.image_id,
+          secondImageId: selectedSecondImage?.image_id || null,
           query,
-          analysisType: analysisRequest.analysisType ?? null,
-          options: analysisRequest.options ?? {},
+          sessionId,
         });
+
+        if (
+          requestId !== requestSequence.current
+          || latestImageRef.current?.image_id !== submittedImageId
+        ) {
+          return { status: "stale" };
+        }
+
+        if (result?.session_id && result.session_id !== sessionId) {
+          createSession(result.session_id);
+        }
 
         if (result?.status === "success") {
           setActiveAnalysis(result);
@@ -93,10 +145,7 @@ function useAnalysis() {
           setActiveAnalysis(result);
           setAnalysisStatus(ANALYSIS_STATUS.ERROR);
 
-          const backendError =
-            result?.execution?.results?.find(
-              (item) => item.error
-            )?.error;
+          const backendError = getAnalysisErrorMessage(result);
 
           setError(
             backendError ||
@@ -105,22 +154,42 @@ function useAnalysis() {
               : "Backend analysis execution failed.")
           );
 
-          return false;
+          return analysisRequest.returnFailureDetails
+            ? {
+                status: result.status,
+                error: backendError || "Backend analysis execution failed.",
+                response: result,
+              }
+            : false;
         }
 
         throw new Error(
           "Backend returned an unexpected analysis response."
         );
       } catch (analysisError) {
+        if (
+          requestId !== requestSequence.current
+          || latestImageRef.current?.image_id !== submittedImageId
+        ) {
+          return { status: "stale" };
+        }
         setAnalysisStatus(ANALYSIS_STATUS.ERROR);
         setError(
           analysisError.message || "Analysis request failed."
         );
-        return false;
+        return analysisRequest.returnFailureDetails
+          ? {
+              status: "failed",
+              error: analysisError.message || "Analysis request failed.",
+            }
+          : false;
       }
     },
     [
       selectedImage,
+      selectedSecondImage,
+      sessionId,
+      createSession,
       clearError,
       setError,
       setAnalysisStatus,

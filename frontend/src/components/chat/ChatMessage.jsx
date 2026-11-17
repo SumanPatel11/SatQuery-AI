@@ -3,12 +3,14 @@ import {
   CheckCircle2,
   User,
 } from "lucide-react";
+import AnalysisSummary from "../analysis/AnalysisSummary";
 
 function ChatMessage({
   role = "user",
   content,
   timestamp = null,
   status = null,
+  analysis = null,
 }) {
   const isUser = role === "user";
 
@@ -51,7 +53,7 @@ function ChatMessage({
         </div>
 
         <div className="chat-message-bubble">
-          <p>{content}</p>
+          {analysis ? <AnalysisSummary analysis={analysis} /> : <p>{content}</p>}
         </div>
 
         {status === "completed" && !isUser && (

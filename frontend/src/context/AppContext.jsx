@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from "react";
+﻿import { createContext, useContext, useMemo, useState } from "react";
 import {
   ANALYSIS_STATUS,
   DEFAULT_VIEWER_LAYERS,
@@ -18,6 +18,7 @@ function AppProvider({ children }) {
   const [activeAnalysis, setActiveAnalysis] = useState(null);
 
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedSecondImage, setSelectedSecondImage] = useState(null);
 
   const [error, setError] = useState(null);
 
@@ -51,6 +52,8 @@ function AppProvider({ children }) {
 
       selectedImage,
       setSelectedImage,
+      selectedSecondImage,
+      setSelectedSecondImage,
 
       error,
       setError,
@@ -61,6 +64,7 @@ function AppProvider({ children }) {
       viewerLayers,
       activeAnalysis,
       selectedImage,
+      selectedSecondImage,
       error,
     ]
   );

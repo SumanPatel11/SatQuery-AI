@@ -3,7 +3,7 @@ import { useState } from "react";
 
 const suggestions = [
   "How many buildings are visible?",
-  "What percentage of the scene is vegetation?",
+  "Segment land-cover classes and report pixel counts.",
 ];
 
 function QueryInput({ onSubmit, disabled = false }) {
@@ -43,8 +43,8 @@ function QueryInput({ onSubmit, disabled = false }) {
         <button
           type="button"
           className="query-attachment"
-          aria-label="Attach imagery"
-          title="Attach imagery"
+          aria-label="Image upload is available in the viewer"
+          title="Upload imagery using the image viewer"
           disabled
         >
           <Paperclip size={16} strokeWidth={1.7} />

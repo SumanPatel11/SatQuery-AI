@@ -35,7 +35,6 @@ function AnalysisPanel({ status = "standby", analysis = null }) {
   const isError = status === "error";
 
   const firstResult = analysis?.execution?.results?.[0];
-  const cvResult = firstResult?.result;
 
   const detectedTask =
     firstResult?.task ||
@@ -50,17 +49,12 @@ function AnalysisPanel({ status = "standby", analysis = null }) {
       ? `${(intentConfidence * 100).toFixed(2)}%`
       : "—";
 
-  const validation =
-    analysis?.nlp?.capability_validation?.overall_status ||
-    "Pending";
-
-  const floodPixelFraction =
-    cvResult?.flood_area_pixel_fraction;
-
-  const floodAreaDisplay =
-    typeof floodPixelFraction === "number"
-      ? `${(floodPixelFraction * 100).toFixed(2)}%`
-      : "—";
+  const contextResolution = analysis?.nlp?.context_resolution?.status;
+  const validation = contextResolution === "REUSED_PREVIOUS_CV_RESULT"
+    || contextResolution === "ANSWERED_FROM_PREVIOUS_RESULT"
+    ? "Reused prior CV result"
+    : analysis?.nlp?.capability_validation?.overall_status || "Pending";
+  const executionResults = analysis?.execution?.results || [];
 
   return (
     <section className="analysis-panel">
@@ -177,43 +171,13 @@ function AnalysisPanel({ status = "standby", analysis = null }) {
         </div>
       </div>
 
-      {isCompleted && (
-        <div className="analysis-info-grid">
-          <div className="analysis-info-card">
-            <div className="analysis-info-icon">
-              <Activity size={15} strokeWidth={1.6} />
-            </div>
-            <div className="analysis-info-content">
-              <span>Flood pixel fraction</span>
-              <strong>{floodAreaDisplay}</strong>
-            </div>
-          </div>
-
-          <div className="analysis-info-card">
-            <div className="analysis-info-icon">
-              <BrainCircuit size={15} strokeWidth={1.6} />
-            </div>
-            <div className="analysis-info-content">
-              <span>CV model</span>
-              <strong>{cvResult?.model || "—"}</strong>
-            </div>
-          </div>
-
-          <div className="analysis-info-card">
-            <div className="analysis-info-icon">
-              <ShieldCheck size={15} strokeWidth={1.6} />
-            </div>
-            <div className="analysis-info-content">
-              <span>CV execution</span>
-              <strong>
-                {firstResult?.execution_status || "—"}
-              </strong>
-            </div>
-          </div>
-        </div>
+      {executionResults.length > 0 && (
+        <p className="analysis-console-note">
+          {executionResults.length} backend result{executionResults.length === 1 ? " is" : "s are"} available in the chat summary. This console shows request status and capability validation.
+        </p>
       )}
 
-      <ProcessingTimeline status={status} />
+      <ProcessingTimeline status={status} analysis={analysis} />
     </section>
   );
 }

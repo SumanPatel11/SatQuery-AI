@@ -4,14 +4,14 @@ import QuerySuggestions from "./QuerySuggestions";
 import QueryInput from "./QueryInput";
 import useChat from "../../hooks/useChat";
 
-function ChatPanel() {
+function ChatPanel({ onAnalyze, disabled = false }) {
   const {
     messages,
     isProcessing,
     error,
     sendMessage,
     clearChat,
-  } = useChat();
+  } = useChat({ onAnalyze });
 
   const handleSuggestionSelect = (query) => {
     sendMessage(query);
@@ -38,7 +38,7 @@ function ChatPanel() {
           type="button"
           className="chat-panel-reset"
           onClick={clearChat}
-          disabled={messages.length === 0}
+          disabled={messages.length === 0 || isProcessing}
           aria-label="Clear conversation"
           title="Clear conversation"
         >
@@ -73,7 +73,7 @@ function ChatPanel() {
 
             <QuerySuggestions
               onSelect={handleSuggestionSelect}
-              disabled={isProcessing}
+              disabled={disabled || isProcessing}
             />
           </div>
         ) : (
@@ -85,6 +85,7 @@ function ChatPanel() {
                 content={message.content}
                 timestamp={message.timestamp}
                 status={message.status}
+                analysis={message.analysis}
               />
             ))}
 
@@ -111,7 +112,7 @@ function ChatPanel() {
       <div className="chat-panel-input">
         <QueryInput
           onSubmit={sendMessage}
-          disabled={isProcessing}
+          disabled={disabled || isProcessing}
         />
       </div>
     </section>

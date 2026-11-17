@@ -20,21 +20,29 @@ function LayerControls({
       key: "analysis",
       label: "Analysis Overlay",
       indicatorClass: "analysis",
+      disabled: true,
+      note: "Analysis overlay toggling is not connected to the current model outputs.",
     },
     {
       key: "buildings",
       label: "Buildings",
       indicatorClass: "buildings",
+      disabled: true,
+      note: "Building boxes are displayed automatically when returned by the model.",
     },
     {
       key: "water",
       label: "Water",
       indicatorClass: "water",
+      disabled: true,
+      note: "No standalone water overlay is registered.",
     },
     {
       key: "vegetation",
       label: "Vegetation",
       indicatorClass: "vegetation",
+      disabled: true,
+      note: "No standalone vegetation overlay is registered.",
     },
   ];
 
@@ -69,6 +77,8 @@ function LayerControls({
               layers[layer.key] ? "active" : ""
             }`}
             onClick={() => onToggle(layer.key)}
+            disabled={layer.disabled}
+            title={layer.note || `Toggle ${layer.label.toLowerCase()}`}
           >
             <span className="layer-item-left">
               <span
@@ -93,10 +103,7 @@ function LayerControls({
         ))}
       </div>
 
-      <div className="layer-panel-note">
-        Analysis layers will become available when model
-        results are loaded.
-      </div>
+      <div className="layer-panel-note">Base image visibility is controllable. Other overlay controls are disabled when the backend does not provide a matching display layer.</div>
     </div>
   );
 }

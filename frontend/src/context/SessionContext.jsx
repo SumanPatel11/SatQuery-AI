@@ -7,8 +7,22 @@ import {
 
 const SessionContext = createContext(null);
 
+function makeSessionId() {
+  return globalThis.crypto?.randomUUID?.()
+    ?? `satquery-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function readSessionId() {
+  try {
+    return sessionStorage.getItem("satquery-session-id") || makeSessionId();
+  } catch {
+    return makeSessionId();
+  }
+}
+
 function SessionProvider({ children }) {
-  const [sessionId, setSessionId] = useState(null);
+  const [sessionId, setSessionId] = useState(readSessionId);
+  const [conversationMessages, setConversationMessages] = useState([]);
 
   const [user, setUser] = useState({
     name: "Suman",
@@ -18,14 +32,35 @@ function SessionProvider({ children }) {
   const [currentWorkspace, setCurrentWorkspace] =
     useState("New Scan");
 
+  const [newScanToken, setNewScanToken] = useState(0);
+
   const [queryHistory, setQueryHistory] = useState([]);
 
   const createSession = (id) => {
-    setSessionId(id);
+    const nextId = id || makeSessionId();
+    setSessionId(nextId);
+    try { sessionStorage.setItem("satquery-session-id", nextId); } catch { /* storage is optional */ }
+  };
+
+  const resetConversation = () => {
+    const nextId = makeSessionId();
+    setSessionId(nextId);
+    setConversationMessages([]);
+    try { sessionStorage.setItem("satquery-session-id", nextId); } catch { /* storage is optional */ }
+  };
+
+  const appendConversationMessage = (message) => {
+    setConversationMessages((current) => [...current, message]);
+  };
+
+  const openNewScan = () => {
+    setCurrentWorkspace("New Scan");
+    setNewScanToken((current) => current + 1);
+    resetConversation();
   };
 
   const endSession = () => {
-    setSessionId(null);
+    resetConversation();
     setQueryHistory([]);
   };
 
@@ -51,15 +86,20 @@ function SessionProvider({ children }) {
   const value = useMemo(
     () => ({
       sessionId,
+      conversationMessages,
       user,
       setUser,
 
       currentWorkspace,
       setCurrentWorkspace,
+      newScanToken,
+      openNewScan,
 
       queryHistory,
 
       createSession,
+      resetConversation,
+      appendConversationMessage,
       endSession,
 
       addQueryToHistory,
@@ -67,8 +107,10 @@ function SessionProvider({ children }) {
     }),
     [
       sessionId,
+      conversationMessages,
       user,
       currentWorkspace,
+      newScanToken,
       queryHistory,
     ]
   );

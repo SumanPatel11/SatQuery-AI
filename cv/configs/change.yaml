@@ -1,0 +1,16 @@
+# Initial bounded CPU experiment. Increase limits/epochs only after
+# confirming that the pipeline trains correctly and validation improves.
+dataset_root: data/raw/cv/change/levir_cd
+image_size: 256
+batch_size: 2
+epochs: 5
+train_limit: 120
+val_limit: 32
+learning_rate: 0.0003
+weight_decay: 0.0001
+dice_weight: 0.5
+threshold: 0.5
+early_stopping_patience: 2
+cpu_threads: 6
+seed: 42
+checkpoint: models/cv/levir_cd_change/best.pt

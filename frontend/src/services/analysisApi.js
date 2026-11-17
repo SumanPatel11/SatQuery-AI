@@ -1,7 +1,8 @@
-import api from "./api";
+﻿import api from "./api";
 
 export async function analyzeImage({
   image,
+  second_image = null,
   query = "",
   analysisType = null,
   options = {},
@@ -12,6 +13,7 @@ export async function analyzeImage({
 
   return api.runAnalysis({
     image,
+    second_image,
     query,
     analysisType,
     options,

@@ -1,179 +1,60 @@
-import {
-  BrainCircuit,
-  CheckCircle2,
-  Circle,
-  ScanLine,
-  Sparkles,
-} from "lucide-react";
+import { CheckCircle2, Circle, CircleDashed } from "lucide-react";
 
-const pipelineSteps = [
-  {
-    key: "input",
-    label: "Input validation",
-    description: "Image and query validation",
-    icon: CheckCircle2,
-  },
-  {
-    key: "nlp",
-    label: "NLP understanding",
-    description: "Query understanding and intent extraction",
-    icon: BrainCircuit,
-  },
-  {
-    key: "planning",
-    label: "Task planning",
-    description: "Selecting the required analysis workflow",
-    icon: Sparkles,
-  },
-  {
-    key: "vision",
-    label: "Vision analysis",
-    description: "Running the selected computer vision task",
-    icon: ScanLine,
-  },
-];
-
-function getStepState(stepIndex, status) {
-  if (status === "standby") {
-    return stepIndex === 0 ? "ready" : "pending";
-  }
-
-  if (status === "processing") {
-    if (stepIndex === 0) {
-      return "completed";
-    }
-
-    if (stepIndex === 1) {
-      return "processing";
-    }
-
-    return "pending";
-  }
-
-  if (status === "completed") {
-    return "completed";
-  }
-
-  if (status === "error") {
-    if (stepIndex === 0) {
-      return "completed";
-    }
-
-    if (stepIndex === 1) {
-      return "error";
-    }
-
-    return "pending";
-  }
-
-  return "pending";
-}
-
-function ProcessingTimeline({ status = "standby" }) {
-  const timelineStatus =
+function ProcessingTimeline({ status = "standby", analysis = null }) {
+  const executionStatus = analysis?.execution?.execution_status;
+  const state =
     status === "completed"
-      ? "COMPLETE"
+      ? "completed"
       : status === "processing"
-        ? "PROCESSING"
+        ? "processing"
         : status === "error"
-          ? "ERROR"
-          : "STANDBY";
+          ? "error"
+          : "ready";
+
+  const label = {
+    ready: "Ready for analysis",
+    processing: "Analysis request in progress",
+    completed: "Analysis request completed",
+    error: "Analysis request did not complete",
+  }[state];
+
+  const Icon = state === "completed"
+    ? CheckCircle2
+    : state === "processing"
+      ? CircleDashed
+      : Circle;
 
   return (
     <div className="processing-timeline">
       <div className="timeline-heading">
         <div className="timeline-heading-main">
-          <span>PROCESSING PIPELINE</span>
+          <span>REQUEST STATUS</span>
         </div>
-
-        <span className="timeline-state">
-          {timelineStatus}
-        </span>
+        <span className="timeline-state">{state.toUpperCase()}</span>
       </div>
-
       <div className="timeline-list">
-        {pipelineSteps.map((step, index) => {
-          const Icon = step.icon;
-          const stepState = getStepState(index, status);
-
-          const isReady =
-            stepState === "ready";
-
-          const isCompleted =
-            stepState === "completed";
-
-          const isProcessing =
-            stepState === "processing";
-
-          const isError =
-            stepState === "error";
-
-          return (
-            <div
-              className="timeline-item"
-              key={step.key}
-            >
-              <div className="timeline-marker-wrapper">
-                <div
-                  className={`timeline-marker ${stepState}`}
-                >
-                  {isReady || isCompleted ? (
-                    <Icon
-                      size={11}
-                      strokeWidth={2}
-                    />
-                  ) : isProcessing ? (
-                    <Circle
-                      size={7}
-                      fill="currentColor"
-                      strokeWidth={0}
-                    />
-                  ) : isError ? (
-                    <Circle
-                      size={7}
-                      fill="currentColor"
-                      strokeWidth={0}
-                    />
-                  ) : (
-                    <Circle
-                      size={6}
-                      fill="currentColor"
-                      strokeWidth={0}
-                    />
-                  )}
-                </div>
-
-                {index < pipelineSteps.length - 1 && (
-                  <div
-                    className={`timeline-connector ${stepState}`}
-                  />
-                )}
-              </div>
-
-              <div className="timeline-step-content">
-                <div className="timeline-step-top">
-                  <span className="timeline-step-label">
-                    {step.label}
-                  </span>
-
-                  <span
-                    className={`timeline-step-state ${stepState}`}
-                  >
-                    {isReady && "READY"}
-                    {isCompleted && "COMPLETE"}
-                    {isProcessing && "PROCESSING"}
-                    {isError && "ERROR"}
-                    {stepState === "pending" && "PENDING"}
-                  </span>
-                </div>
-
-                <div className="timeline-step-description">
-                  {step.description}
-                </div>
-              </div>
+        <div className="timeline-item">
+          <div className="timeline-marker-wrapper">
+            <div className={`timeline-marker ${state}`}>
+              <Icon size={11} strokeWidth={2} />
             </div>
-          );
-        })}
+          </div>
+          <div className="timeline-step-content">
+            <div className="timeline-step-top">
+              <span className="timeline-step-label">{label}</span>
+              {executionStatus && (
+                <span className={`timeline-step-state ${state}`}>
+                  Backend: {executionStatus}
+                </span>
+              )}
+            </div>
+            <div className="timeline-step-description">
+              {state === "processing"
+                ? "The backend does not report per-stage progress."
+                : "Status reflects the request result reported by the application."}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

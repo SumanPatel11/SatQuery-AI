@@ -1,4 +1,4 @@
-﻿
+
 import json
 import re
 from typing import Any, Dict, List
@@ -16,7 +16,7 @@ class TaskPlanner:
 
     TARGETS = [
         "building", "road", "water", "vegetation",
-        "flooded_area", "land_cover", "unknown",
+        "forest", "agriculture", "flooded_area", "land_cover", "unknown",
     ]
 
     OUTPUT_SCHEMA = {
@@ -76,6 +76,12 @@ FLOOD SEMANTICS:
 - For requests explicitly asking whether flooding exists,
   use PRESENCE with flooded_area.
 - Do not convert flood detection into ordinary water presence.
+        - LoveDA returns class pixel counts from one segmentation result.
+        - Image pixel counts, fractions and percentages may be derived from
+          segmentation; do not describe them as geographic area.
+        - Geographic/physical area (for example hectares or square kilometres)
+          is unsupported and must use AREA with target land_cover.
+- Use DETECT for land-cover segmentation/classification requests.
 
 EXAMPLES:
 Count the buildings in the image.
@@ -87,8 +93,11 @@ Locate the roads in the image.
 Determine whether water is present in the image.
 => PRESENCE, water
 
-Calculate the area covered by vegetation.
-=> AREA, vegetation
+Calculate the percentage of image pixels covered by vegetation.
+=> DETECT, land_cover
+
+Calculate the geographic area of forest in hectares.
+=> AREA, land_cover
 
 Detect buildings in the image.
 => DETECT, building
@@ -131,6 +140,59 @@ Detect flooded areas in the image.
 
         return any(re.search(pattern, text) for pattern in patterns)
 
+    @staticmethod
+    def _normalize_land_cover_task(
+        subquery: str,
+        task: Dict[str, Any],
+        subquery_intent: str = "",
+        original_query: str = "",
+    ) -> Dict[str, Any]:
+        """Map vegetation/class questions onto the existing LoveDA segmentation."""
+        text = subquery.lower()
+        target = str(task.get("target", "")).lower()
+        land_cover_request = (
+            target in {"vegetation", "forest", "agriculture", "land_cover"}
+            or subquery_intent == "LAND_COVER_ANALYSIS"
+            or re.search(r"\b(vegetation|forest|forests|agricultur\w*|land[ -]cover)\b", text)
+        )
+        if not land_cover_request:
+            return task
+
+        normalized = dict(task)
+        normalized["target"] = "land_cover"
+        normalized["region"] = "none"
+        normalized["spatial_relation"] = "none"
+
+        original_text = original_query.lower()
+        semantic_text = f"{text} {original_text}"
+        explicit_physical_units = bool(re.search(
+            r"\b(hectares?|acres?|square\s*(kilomet(?:er|re)s?|miles?|met(?:er|re)s?)|sq\.?\s*(km|mi|m)|geographic(?:al)?\s+area|physical\s+area)\b",
+            semantic_text,
+        ))
+        pixel_stat_pattern = r"\b(pixel|pixels|count|counts|how\s+much|percentage|percent|fraction|coverage|covered)\b"
+        original_requests_pixel_stat = bool(re.search(pixel_stat_pattern, original_text))
+        original_requests_area = bool(re.search(r"\barea\b", original_text))
+        subquery_requests_area = bool(re.search(r"\barea\b", text))
+        subquery_requests_pixel_stat = bool(re.search(pixel_stat_pattern, text))
+        physical_area = explicit_physical_units or (
+            original_requests_area and not original_requests_pixel_stat
+        ) or (
+            not original_requests_area
+            and not original_requests_pixel_stat
+            and subquery_requests_area
+            and not subquery_requests_pixel_stat
+        )
+
+        if physical_area:
+            normalized["operation"] = "AREA"
+        elif re.search(r"\b(count|counts|how\s+much)\b", semantic_text):
+            normalized["operation"] = "COUNT"
+        else:
+            # Segmentation supplies the actual class mask/counts; pixel
+            # percentages are derived from this same inference result.
+            normalized["operation"] = "DETECT"
+        return normalized
+
     def plan(
         self,
         original_query: str,
@@ -150,6 +212,23 @@ Detect flooded areas in the image.
             )
 
         original_intent = m1_result.get("intent")
+
+        # Preserve BUILDING_CHANGE as one paired-image task. M2 may
+        # split the wording into before/after locate requests, but the
+        # Siamese change model compares both images jointly.
+        if (
+            original_intent == "BUILDING_CHANGE"
+            and not self._is_explicit_multi_task_query(original_query)
+        ):
+            return {
+                "tasks": [{
+                    "source_subquery": original_query,
+                    "operation": "CHANGE",
+                    "target": "building",
+                    "region": "none",
+                    "spatial_relation": "none",
+                }]
+            }
 
         # Correct M2 over-decomposition for a single flood request.
         # Preserve multiple tasks only when the original query
@@ -227,6 +306,15 @@ Detect flooded areas in the image.
 
             if target not in self.TARGETS:
                 raise ValueError("Invalid task target.")
+
+            task = self._normalize_land_cover_task(
+                subquery,
+                task,
+                prediction.get("intent", ""),
+                original_query,
+            )
+            operation = task["operation"]
+            target = task["target"]
 
             for field in ("region", "spatial_relation"):
                 if not isinstance(task.get(field), str):
